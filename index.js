@@ -114,13 +114,14 @@ class DatePicker extends Component {
     if (date instanceof Date) {
       return Moment(date).format(this.format);
     } else {
+      return date;
       return Moment(this.getDate(date)).format(this.format);
     }
   }
 
   datePicked() {
     if (typeof this.props.onDateChange === 'function') {
-      this.props.onDateChange(this.getDateStr(this.state.date), this.state.date);
+      this.props.onDateChange(this.state.date);
     }
   }
 
@@ -135,7 +136,7 @@ class DatePicker extends Component {
   onDatePicked({action, year, month, day}) {
     if (action !== DatePickerAndroid.dismissedAction) {
       this.setState({
-        date: new Date(year, month, day)
+        date: (new Date(year, month, day)).getTime()
       });
       this.datePicked();
     }
@@ -226,19 +227,7 @@ class DatePicker extends Component {
     ];
 
     return (
-      <TouchableHighlight
-        style={[Style.dateTouch, this.props.style]}
-        underlayColor={'transparent'}
-        onPress={this.onPressDate}
-      >
-        <View style={[Style.dateTouchBody, customStyles.dateTouchBody]}>
-          <View style={dateInputStyle}>
-            {this.getTitleElement()}
-          </View>
-          {this.props.showIcon && <Image
-            style={[Style.dateIcon, customStyles.dateIcon]}
-            source={this.props.iconSource}
-          />}
+        <View>
           {Platform.OS === 'ios' && <Modal
             transparent={true}
             visible={this.state.modalVisible}
@@ -288,7 +277,6 @@ class DatePicker extends Component {
             </TouchableHighlight>
           </Modal>}
         </View>
-      </TouchableHighlight>
     );
   }
 }
@@ -307,7 +295,7 @@ DatePicker.defaultProps = {
   customStyles: {},
 
   // whether or not show the icon
-  showIcon: true,
+  showIcon: false,
   disabled: false,
   placeholder: ''
 };
