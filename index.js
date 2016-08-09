@@ -114,14 +114,13 @@ class DatePicker extends Component {
     if (date instanceof Date) {
       return Moment(date).format(this.format);
     } else {
-      return date;
       return Moment(this.getDate(date)).format(this.format);
     }
   }
 
   datePicked() {
     if (typeof this.props.onDateChange === 'function') {
-      this.props.onDateChange(this.state.date);
+      this.props.onDateChange(this.getDateStr(this.state.date), this.state.date);
     }
   }
 
@@ -136,7 +135,7 @@ class DatePicker extends Component {
   onDatePicked({action, year, month, day}) {
     if (action !== DatePickerAndroid.dismissedAction) {
       this.setState({
-        date: (new Date(year, month, day)).getTime()
+        date: new Date(year, month, day)
       });
       this.datePicked();
     }
@@ -227,56 +226,56 @@ class DatePicker extends Component {
     ];
 
     return (
-        <View>
-          {Platform.OS === 'ios' && <Modal
-            transparent={true}
-            visible={this.state.modalVisible}
-            onRequestClose={() => {this.setModalVisible(false);}}
+      <View>
+      {Platform.OS === 'ios' && <Modal
+        transparent={true}
+        visible={this.state.modalVisible}
+        onRequestClose={() => {this.setModalVisible(false);}}
+      >
+        <TouchableHighlight
+          style={Style.datePickerMask}
+          activeOpacity={1}
+          underlayColor={'#00000077'}
+          onPress={this.onPressCancel}
+        >
+          <TouchableHighlight
+            underlayColor={'#fff'}
+            style={{flex: 1}}
           >
-            <TouchableHighlight
-              style={Style.datePickerMask}
-              activeOpacity={1}
-              underlayColor={'#00000077'}
-              onPress={this.onPressCancel}
+            <Animated.View
+              style={[Style.datePickerCon, {height: this.state.animatedHeight}, customStyles.datePickerCon]}
             >
+              <DatePickerIOS
+                date={this.state.date}
+                mode={this.props.mode}
+                minimumDate={this.props.minDate && this.getDate(this.props.minDate)}
+                maximumDate={this.props.maxDate && this.getDate(this.props.maxDate)}
+                onDateChange={(date) => this.setState({date: date})}
+                style={[Style.datePicker, customStyles.datePicker]}
+              />
               <TouchableHighlight
-                underlayColor={'#fff'}
-                style={{flex: 1}}
+                underlayColor={'transparent'}
+                onPress={this.onPressCancel}
+                style={[Style.btnText, Style.btnCancel, customStyles.btnCancel]}
               >
-                <Animated.View
-                  style={[Style.datePickerCon, {height: this.state.animatedHeight}, customStyles.datePickerCon]}
+                <Text
+                  style={[Style.btnTextText, Style.btnTextCancel, customStyles.btnTextCancel]}
                 >
-                  <DatePickerIOS
-                    date={this.state.date}
-                    mode={this.props.mode}
-                    minimumDate={this.props.minDate && this.getDate(this.props.minDate)}
-                    maximumDate={this.props.maxDate && this.getDate(this.props.maxDate)}
-                    onDateChange={(date) => this.setState({date: date})}
-                    style={[Style.datePicker, customStyles.datePicker]}
-                  />
-                  <TouchableHighlight
-                    underlayColor={'transparent'}
-                    onPress={this.onPressCancel}
-                    style={[Style.btnText, Style.btnCancel, customStyles.btnCancel]}
-                  >
-                    <Text
-                      style={[Style.btnTextText, Style.btnTextCancel, customStyles.btnTextCancel]}
-                    >
-                      {this.props.cancelBtnText}
-                    </Text>
-                  </TouchableHighlight>
-                  <TouchableHighlight
-                    underlayColor={'transparent'}
-                    onPress={this.onPressConfirm}
-                    style={[Style.btnText, Style.btnConfirm, customStyles.btnConfirm]}
-                  >
-                    <Text style={[Style.btnTextText, customStyles.btnTextConfirm]}>{this.props.confirmBtnText}</Text>
-                  </TouchableHighlight>
-                </Animated.View>
+                  {this.props.cancelBtnText}
+                </Text>
               </TouchableHighlight>
-            </TouchableHighlight>
-          </Modal>}
-        </View>
+              <TouchableHighlight
+                underlayColor={'transparent'}
+                onPress={this.onPressConfirm}
+                style={[Style.btnText, Style.btnConfirm, customStyles.btnConfirm]}
+              >
+                <Text style={[Style.btnTextText, customStyles.btnTextConfirm]}>{this.props.confirmBtnText}</Text>
+              </TouchableHighlight>
+            </Animated.View>
+          </TouchableHighlight>
+        </TouchableHighlight>
+      </Modal>}
+      </View>
     );
   }
 }
@@ -295,7 +294,7 @@ DatePicker.defaultProps = {
   customStyles: {},
 
   // whether or not show the icon
-  showIcon: false,
+  showIcon: true,
   disabled: false,
   placeholder: ''
 };
